@@ -1,0 +1,17 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "portfolio webserver",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "portfolio",
+    "website",
+    "fullstack",
+    "portfolio"
+  ],
+  "author": "ankit",
+  "license": "ISC"
+}

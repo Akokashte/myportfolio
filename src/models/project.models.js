@@ -11,7 +11,7 @@ const projectSchema = new Schema(
             required: [true, "Project category is required field"]
         },
         year: {
-            type: Number,
+            type: String,
             required: [true, "Year of completion is required !"],
         },
         description: {
@@ -22,12 +22,16 @@ const projectSchema = new Schema(
             type: String,
             required: [true, "thumbnail is required field !"]
         },
+        thumbnailPublicId:{
+            type:String,
+        },
         gitLink: {
             type: String,
             required: [true, "github link of project is required !"],
         },
         websiteLiveLink: {
             type: String,
+            default:""
         }
     },
     {

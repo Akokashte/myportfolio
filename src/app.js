@@ -19,8 +19,11 @@ app.use(express.static("public"))
 app.use(cookieParser())
 
 import userRouter from './routes/user.route.js'
+import projectRouter from './routes/project.routes.js'
+import verifyJwt from './middlewares/verifyJwt.middleware.js'
 
 app.use("/api/v1/user",userRouter)
+app.use("/api/v1/project",verifyJwt,projectRouter)
 
 
 export { app }

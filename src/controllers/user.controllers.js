@@ -47,11 +47,18 @@ const registerUser = asyncHandler(async (req, res) => {
     // check for extension of resume it should be .pdf otherwise show error
     const extension = resumeLocalPath.split('.').pop();
     if(extension!=="pdf"){
+        removeLocalFile(resumeLocalPath);
+        removeLocalFile(profileImageLocalPath);
         throw new ApiError(400,`Inappropriate file extension '${extension}', only .pdf extension files are accepted !`)
     }
 
     const resume = await uploadOnCloudinary(resumeLocalPath);
     const profile = await uploadOnCloudinary(profileImageLocalPath);
+
+    // remove files stored in local temp folder after being uploaded to cloudinary
+    removeLocalFile(resumeLocalPath);
+    removeLocalFile(profileImageLocalPath);
+    
     if (!resume || !profile) {
         throw new ApiError(400, "Error while uploading file to cloud")
     }

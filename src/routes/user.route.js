@@ -13,29 +13,29 @@ import { verifyOtp } from "../middlewares/verifyOtp.middleware.js";
 // defining routes here
 const router = Router()
 
+// routes for user
 router.route("/send/otp").post(sendOtp)
 router.route("/register")
-.post(
-  upload.fields(
-    [
-      {
-        name:"resumeLink",
-        maxCount:1
-      },
-      {
-        name:"profileImage",
-        maxCount:1
-      }
-    ]
+  .post(
+    upload.fields(
+      [
+        {
+          name: "resumeLink",
+          maxCount: 1
+        },
+        {
+          name: "profileImage",
+          maxCount: 1
+        }
+      ]
     ),
- verifyOtp,
- registerUser
-)
+    verifyOtp,
+    registerUser
+  )
 router.route("/login").post(loginUser)
-router.route("/logout").post(verifyJwt,logoutUser)
-router.route("/project").post()
-router.route("/profile").patch(verifyJwt,upload.single("profileImage"),updateProfileImage)
-router.route("/resume").patch(verifyJwt,upload.single("resumeLink"),updateResumeFile)
+router.route("/logout").post(verifyJwt, logoutUser)
+router.route("/profile").patch(verifyJwt, upload.single("profileImage"), updateProfileImage)
+router.route("/resume").patch(verifyJwt, upload.single("resumeLink"), updateResumeFile)
 
 // export router
 

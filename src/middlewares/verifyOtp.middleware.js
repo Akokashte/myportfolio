@@ -13,7 +13,6 @@ const verifyOtp = asyncHandler(async (req, res, next) => {
         await Otp.deleteOne({ email })
         throw new ApiError(401, "Invalid Otp !")
     }
-    
     next();
 })
 export { verifyOtp }

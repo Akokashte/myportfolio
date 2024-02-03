@@ -27,14 +27,13 @@ const registerUser = asyncHandler(async (req, res) => {
     if(!isEmailVerified){
         throw new ApiError(401,"Unauthorized access such email doesnt exist !")
     }
-
     // check email already exists or not
     const isEmailAlreadyExist = await User.findOne({ email })
-
+    
     if (isEmailAlreadyExist) {
         throw new ApiError(403, "email already registered !")
     }
-
+    
     const resumeLocalPath = req.files?.resumeLink[0]?.path;
     const profileImageLocalPath = req.files?.profileImage[0]?.path;
 
@@ -44,20 +43,18 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, "resume and profile files are required !")
     }
 
-    // check for extension of resume it should be .pdf otherwise show error
-    const extension = resumeLocalPath.split('.').pop();
-    if(extension!=="pdf"){
+    // check for extension of resume and images for pdf it should be .pdf and for image it should be .webp,.jpg,.png,.jpeg etc otherwise show error
+    const resumeExtension = resumeLocalPath.split('.').pop();
+    const profileExtension = profileImageLocalPath.split('.').pop();
+    const imageExtensions = ["jpg","jpeg","png","webp"]
+    
+    if(resumeExtension !=="pdf" || !imageExtensions.includes(profileExtension)){
         removeLocalFile(resumeLocalPath);
         removeLocalFile(profileImageLocalPath);
-        throw new ApiError(400,`Inappropriate file extension '${extension}', only .pdf extension files are accepted !`)
+        throw new ApiError(400,`Inappropriate file extensions plz check for pdf it should be .pdf and for images it should be ${imageExtensions} !`)
     }
-
-    const resume = await uploadOnCloudinary(resumeLocalPath);
-    const profile = await uploadOnCloudinary(profileImageLocalPath);
-
-    // remove files stored in local temp folder after being uploaded to cloudinary
-    removeLocalFile(resumeLocalPath);
-    removeLocalFile(profileImageLocalPath);
+    const resume = await uploadOnCloudinary(resumeLocalPath,"user");
+    const profile = await uploadOnCloudinary(profileImageLocalPath,"user");
     
     if (!resume || !profile) {
         throw new ApiError(400, "Error while uploading file to cloud")
@@ -90,6 +87,7 @@ const registerUser = asyncHandler(async (req, res) => {
         httpOnly: true,
         secure: true
     }
+
     // if user entry successfully saved in db then return success message along with data
     return res.
         status(201)
@@ -191,7 +189,7 @@ const updateProfileImage = asyncHandler(async (req, res) => {
     }
 
     // if files stored in public temp folder locally then upload it to cloudinary
-    const updatedProfile = await uploadOnCloudinary(profileImagePath)
+    const updatedProfile = await uploadOnCloudinary(profileImagePath,"user")
 
     // if updation of profile fails then show error
     if (!updatedProfile) {
@@ -253,7 +251,7 @@ const updateResumeFile = asyncHandler(async (req, res) => {
     }
 
     // if files stored in public temp folder locally then upload it to cloudinary
-    const updatedResume = await uploadOnCloudinary(resumeFilePath)
+    const updatedResume = await uploadOnCloudinary(resumeFilePath,"user")
 
     // if updation of profile fails then show error
     if (!updatedResume) {

@@ -16,7 +16,8 @@ const userSchema = new Schema(
             required: [true, "Resume link is required !"],
         },
         resumeLinkPublicId:{
-            type:String
+            type:String,
+            default:""
         },
         profileImage: {
             type: String,
@@ -24,6 +25,7 @@ const userSchema = new Schema(
         },
         profileImagePublicId:{
             type:String,
+            default:""
         },
         password: {
             type: String,
@@ -36,6 +38,7 @@ const userSchema = new Schema(
         },
         refreshToken: {
             type: String,
+            default:""
         }
     },
     {

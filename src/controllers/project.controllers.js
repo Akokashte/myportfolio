@@ -5,9 +5,12 @@ import { asyncHandler } from "../utils/asyncHandler.js"
 import uploadOnCloudinary from "../utils/cloudinary.js";
 import { deleteFromCloudinary } from "../utils/deleteFromCloudinary.js";
 import removeLocalFile from "../utils/removeLocalFile.js";
+import projectSchema from "../utils/helper/validation/project.validation.js"
 
 const createProject = asyncHandler(async (req, res) => {
-    const { projectName, category, year, description, gitLink, websiteLiveLink } = req.body
+    const validationResponse = await projectSchema.validateAsync(req.body);
+
+    const { projectName, category, year, description, gitLink, websiteLiveLink } = validationResponse
 
     const thumbnailLocalPath = req.files?.thumbnail[0]?.path;
 
@@ -16,7 +19,7 @@ const createProject = asyncHandler(async (req, res) => {
         throw new ApiError(400, "thumbnail file is mandatory !")
     }
 
-    const thumbnailImageUploaded = await uploadOnCloudinary(thumbnailLocalPath)
+    const thumbnailImageUploaded = await uploadOnCloudinary(thumbnailLocalPath, "projects")
 
     if (!thumbnailImageUploaded) {
         throw new ApiError(400, "Error while uploading file to cloudinary !");;
@@ -60,7 +63,7 @@ const updateProject = asyncHandler(async (req, res) => {
         throw new ApiError(400, "thumbnail is required !")
     }
 
-    const thumbnailImage = await uploadOnCloudinary(thumbnailLocalPath);
+    const thumbnailImage = await uploadOnCloudinary(thumbnailLocalPath, "projects");
 
     if (!thumbnailImage) {
         throw new ApiError(400, "Error while uploading file to cloudinary !")
@@ -71,7 +74,6 @@ const updateProject = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Error while fetching old thumbnail from database !")
     }
 
-    console.log('hi',oldThumbnail)
     const isThumbnailDeletedFromCloudinary = await deleteFromCloudinary(oldThumbnail.thumbnailPublicId)
 
     if (!isThumbnailDeletedFromCloudinary) {
@@ -95,11 +97,11 @@ const updateProject = asyncHandler(async (req, res) => {
             new: true
         }
     )
-    
+
     if (!modifiedProject) {
         throw new ApiError(400, "Error while updating project information !")
     }
-    console.log('victory')
+
     return res
         .status(200)
         .json(
@@ -131,11 +133,11 @@ const fetchAllProjects = asyncHandler(async (req, res) => {
 
 const deleteProject = asyncHandler(async (req, res) => {
     const { _id } = req.body
-    const dataDeletingImageId = await Project.findById({_id}).select("thumbnailPublicId")
+    const dataDeletingImageId = await Project.findById({ _id }).select("thumbnailPublicId")
     console.log(dataDeletingImageId)
-    
-    if(!dataDeletingImageId){
-        throw new ApiError(404,"project does not exist !")
+
+    if (!dataDeletingImageId) {
+        throw new ApiError(404, "project does not exist !")
     }
 
 
@@ -144,8 +146,8 @@ const deleteProject = asyncHandler(async (req, res) => {
         throw new ApiError(409, "Error while deletion of project !")
     }
 
-    if(deletedData.deletedCount===1){
-       await deleteFromCloudinary(dataDeletingImageId.thumbnailPublicId)
+    if (deletedData.deletedCount === 1) {
+        await deleteFromCloudinary(dataDeletingImageId.thumbnailPublicId)
     }
 
     return res

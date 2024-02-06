@@ -20,10 +20,12 @@ app.use(cookieParser())
 
 import userRouter from './routes/user.route.js'
 import projectRouter from './routes/project.routes.js'
+import techstackRouter from './routes/techstack.route.js'
 import verifyJwt from './middlewares/verifyJwt.middleware.js'
 
 app.use("/api/v1/user",userRouter)
 app.use("/api/v1/project",verifyJwt,projectRouter)
+app.use("/api/v1/techstack",verifyJwt,techstackRouter)
 
 
 export { app }

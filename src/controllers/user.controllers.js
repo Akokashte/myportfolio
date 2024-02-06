@@ -113,22 +113,28 @@ const loginUser = asyncHandler(async (req, res) => {
 
     // check if email exist or not 
     const user = await User.findOne({ email })
-
-    if(!user.isVerified){
-        throw new ApiError(401,"unauthorized access: email is not verified")
-    }
-
+    
+    // if user not registered then throw error
     if (!user) {
         throw new ApiError(404, "User does not exists !")
     }
 
+    // check for authorization and if user is unathorized then throw error
+    if(!user.isVerified){
+        throw new ApiError(401,"unauthorized access: email is not verified")
+    }
+
+    // check for password matches with registered password
     const isPasswordCorrect = await user.isPasswordCorrect(password, user.password);
+    // if password is wrong then throw error
     if (!isPasswordCorrect) {
         throw new ApiError(401, "Invalid credentials!")
     }
 
+    // generate access and refresh token for user
     const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user)
 
+    // cookie options
     const options = {
         httpOnly: true,
         secure: true
@@ -220,6 +226,7 @@ const updateProfileImage = asyncHandler(async (req, res) => {
         "-password -refreshToken"
     )
 
+    // if issues while updating data then throw error 
     if (!user) {
         throw new ApiError(400, "Something went wrong while updating profile data !")
     }
